@@ -4,7 +4,11 @@ from scrapy.http import Request
 import urlparse
 import sys
 import re
+import datetime
+
 from ArticleSpider.items import JobboleArticleItem
+
+from ArticleSpider.utills.commom import get_md5
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -77,8 +81,14 @@ class JobboleSpider(scrapy.Spider):
         tag_list = [element for element in tag_list if not element.strip().endswith(u"评论")]
         tags = ",".join(tag_list)
 
+
+        article_item['url_object_id'] = get_md5(response.url)
         article_item["title"] = title
         article_item["url"] = response.url
+        try:
+            create_date = datetime.datetime.strptime(create_date, "%Y/%m/%d").date()
+        except Exception as e:
+            create_date = datetime.datetime.now().date()
         article_item["create_date"] = create_date
         article_item["front_image_url"] = [front_image_url]
         article_item["praise_nums"] = praise_nums
